@@ -1,0 +1,10 @@
+{
+  "name": "gods-plan",
+  "version": "1.1.0",
+  "description": "8-phase ultra-planning with Claude, Gemini, Codex and Serena. Brainstorm, analyze, confess, draft, replan, friend-review, verify, present.",
+  "author": {
+    "name": "MarioNitzke"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/MarioNitzke/claude-gods-plan"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "MarioNitzke-gods-plan",
+  "owner": {
+    "name": "MarioNitzke"
+  },
+  "metadata": {
+    "description": "God's Plan — 8-phase multi-model ultra-planning with Claude, Gemini, Codex and Serena.",
+    "version": "1.1.0"
+  },
+  "plugins": [
+    {
+      "name": "gods-plan",
+      "description": "8-phase ultra-planning orchestrating Claude, Gemini and Codex with Serena deep analysis.",
+      "version": "1.1.0",
+      "author": {
+        "name": "MarioNitzke"
+      },
+      "source": "./plugins/gods-plan"
+    }
+  ]
+}

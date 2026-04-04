@@ -1,3 +1,5 @@
+![Claude God's Plan](docs/banner.png)
+
 # God's Plan
 
 [![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/MarioNitzke/claude-gods-plan)

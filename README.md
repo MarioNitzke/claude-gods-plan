@@ -22,31 +22,49 @@ Single-model planning misses things. A plan that looks good to one AI will have 
 |---|---|---|
 | [Claude Code](https://claude.com/claude-code) | Plugin host | Required |
 | [Serena plugin](https://github.com/oraios/serena) | Semantic code analysis (Phase 1, 6) | Required |
-| [Gemini plugin](https://github.com/MarioNitzke/gemini-plugin-cc) | External review (Phase 5) | Strongly recommended |
-| [Codex plugin](https://github.com/openai/codex-plugin-cc) | External review (Phase 5) | Strongly recommended |
+| [Gemini plugin](https://github.com/MarioNitzke/gemini-plugin-cc) | External review (Phase 5) | Required |
+| [Codex plugin](https://github.com/openai/codex-plugin-cc) | External review (Phase 5) | Required |
 
-Serena is required for deep semantic code analysis. Gemini and Codex are strongly recommended — without them Phase 5 (external review) is skipped, but the plan still goes through internal replan validation.
+All three dependencies are required for the full 8-phase pipeline. Without Gemini/Codex, Phase 5 (external review) is skipped. Without Serena, analysis falls back to basic Glob/Grep.
 
 ## Installation
 
-### From GitHub
+### From marketplace
+```bash
+claude plugin marketplace add MarioNitzke/claude-gods-plan
+claude plugin install gods-plan@MarioNitzke-gods-plan
+```
+
+### Install dependencies
+```bash
+# Serena (MCP plugin — follow install instructions at https://github.com/oraios/serena)
+
+# Gemini plugin
+claude plugin marketplace add MarioNitzke/gemini-plugin-cc
+claude plugin install gemini@MarioNitzke-gemini
+
+# Codex plugin
+claude plugin marketplace add openai/codex-plugin-cc
+claude plugin install codex@openai-codex
+```
+
+### From source (development)
 ```bash
 git clone https://github.com/MarioNitzke/claude-gods-plan.git
 claude --plugin-dir ./claude-gods-plan
 ```
 
-### From marketplace (when available)
-```bash
-/plugin install gods-plan
-```
-
 ## Usage
+
+Best used in **Claude Code plan mode** — enter plan mode, then invoke:
 
 ```
 /gods-plan Add a notification system for booking confirmations
 ```
 
-Claude runs through all 8 phases automatically. You interact during Phase 0 (brainstorming), Phase 2 (confession), and Phase 7 (presentation). Everything else is autonomous.
+God's Plan works with plan mode — it writes the draft plan to the plan mode file and manages it incrementally through all 8 phases. The user sees the final plan only in Phase 7.
+
+You interact during Phase 0 (brainstorming), Phase 2 (confession), and Phase 7 (presentation). Everything else is autonomous.
 
 ## Pipeline
 

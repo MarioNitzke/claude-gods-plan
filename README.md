@@ -1,33 +1,33 @@
-![Claude God's Plan](docs/banner.png)
+![God's Plan](docs/banner.png)
 
 # God's Plan
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/MarioNitzke/claude-gods-plan)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/MarioNitzke/claude-gods-plan)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Multi-model ultra-planning plugin for Claude Code. Orchestrates Claude, Gemini, and Codex through an 8-phase pipeline to create thoroughly vetted implementation plans.
-
-![Planning Workflow](docs/workflow.png)
+Multi-model planning plugin for Claude Code. One command kicks off an 8-phase pipeline that brainstorms, analyzes, questions, drafts, reviews internally, sends to external models for feedback, verifies their suggestions, and presents a final plan with a full audit trail.
 
 ## Why?
 
-Single-model planning misses things. A plan that looks good to one AI will have blind spots another would catch. God's Plan fixes this by:
+One model planning alone misses things. God's Plan fixes that by getting multiple perspectives before any code is written:
 
-- **Multi-angle internal review** — 3-8 specialized subagents check the plan from different perspectives before any external model sees it
-- **External review** — Gemini and Codex independently review the plan, bringing different strengths
-- **Fact-checked suggestions** — Claude verifies every external claim against the actual codebase before accepting it
-- **Full audit trail** — you see what was suggested, what was accepted, what was rejected, and why
+- **Internal review** — 3-8 specialized subagents check the plan from different angles
+- **External review** — Codex and Gemini each get targeted questions about the parts that matter most
+- **Fact-checked** — every external suggestion is verified against the actual codebase before it's added
+- **Full audit trail** — you see what was suggested, accepted, rejected, and why
 
 ## Requirements
 
 | Dependency | Purpose | Required? |
 |---|---|---|
 | [Claude Code](https://claude.com/claude-code) | Plugin host | Required |
-| [Serena plugin](https://github.com/oraios/serena) | Semantic code analysis (Phase 1, 6) | Required |
-| [Gemini plugin](https://github.com/MarioNitzke/gemini-plugin-cc) | External review (Phase 5) | Required |
 | [Codex plugin](https://github.com/openai/codex-plugin-cc) | External review (Phase 5) | Required |
+| [Gemini plugin](https://github.com/MarioNitzke/gemini-plugin-cc) | External review (Phase 5) | Recommended |
+| [Serena plugin](https://github.com/oraios/serena) | Semantic code analysis (Phase 1, 6) | Recommended |
 
-All three dependencies are required for the full 8-phase pipeline. Without Gemini/Codex, Phase 5 (external review) is skipped. Without Serena, analysis falls back to basic Glob/Grep.
+**Works great with just Claude + Codex.** Add Gemini for broader coverage — it's especially good at frontend and UX feedback. Without it, all 6 external reviews go to Codex.
+
+I personally use Serena for deeper code analysis (symbol resolution, reference mapping, semantic understanding). Without it, the plugin falls back to Glob/Grep — still works, just less depth. Set it up if you want the full experience, or skip it if you prefer to keep things simple.
 
 ## Installation
 
@@ -37,20 +37,22 @@ claude plugin marketplace add MarioNitzke/claude-gods-plan
 claude plugin install gods-plan@MarioNitzke-gods-plan
 ```
 
-### Install dependencies
+### Install Codex (required)
 ```bash
-# Serena (MCP plugin — follow install instructions at https://github.com/oraios/serena)
-
-# Gemini plugin
-claude plugin marketplace add MarioNitzke/gemini-plugin-cc
-claude plugin install gemini@MarioNitzke-gemini
-
-# Codex plugin
 claude plugin marketplace add openai/codex-plugin-cc
 claude plugin install codex@openai-codex
 ```
 
-### From source (development)
+### Optional: Gemini
+```bash
+claude plugin marketplace add MarioNitzke/gemini-plugin-cc
+claude plugin install gemini@MarioNitzke-gemini
+```
+
+### Optional: Serena
+Follow install instructions at [github.com/oraios/serena](https://github.com/oraios/serena)
+
+### From source
 ```bash
 git clone https://github.com/MarioNitzke/claude-gods-plan.git
 claude --plugin-dir ./claude-gods-plan
@@ -58,47 +60,56 @@ claude --plugin-dir ./claude-gods-plan
 
 ## Usage
 
-Best used in **Claude Code plan mode** — enter plan mode, then invoke:
+Best used in plan mode:
 
 ```
 /gods-plan Add a notification system for booking confirmations
 ```
 
-God's Plan works with plan mode — it writes the draft plan to the plan mode file and manages it incrementally through all 8 phases. The user sees the final plan only in Phase 7.
+You interact during three phases — brainstorming (Phase 0), confession (Phase 2), and presentation (Phase 7). Everything else runs autonomously.
 
-You interact during Phase 0 (brainstorming), Phase 2 (confession), and Phase 7 (presentation). Everything else is autonomous.
+### Example: what happens when you run it
+
+```
+Phase 0  You describe the idea, Claude proposes 2-3 approaches, you pick one
+Phase 1  Claude analyzes the codebase (3 parallel subagents)
+Phase 2  Claude asks you 8+ specific questions about requirements
+Phase 3  Draft plan is written internally
+Phase 4  3-8 internal reviewers check it from different angles
+Phase 5  3 Codex + 3 Gemini agents each review a specific aspect
+Phase 6  Claude verifies every external suggestion against the code
+Phase 7  You see the final plan with full audit trail → approve or adjust
+```
+
+After approval, God's Plan executes the plan in batches of 3 tasks, checking in after each batch.
 
 ## Pipeline
 
 ```
-Phase 0  BRAINSTORMING     Explore intent, propose 2-3 approaches, get design approval
-Phase 1  ANALYSIS          Deep codebase analysis via Serena semantic tools (3 parallel subagents)
-Phase 2  CONFESSION        Systematic requirements gathering (minimum 8 questions)
-Phase 3  DRAFT PLAN        Write bite-sized implementation plan (internal, user does not see)
-Phase 4  REPLAN            Parallel subagent review from 3-8 angles
-Phase 5  FRIENDS           Send plan to Gemini + Codex for independent external review
-Phase 6  VERIFICATION      Fact-check external claims against actual codebase via Serena
-Phase 7  PRESENTATION      Present final plan with full audit trail
+Phase 0  BRAINSTORMING     Explore intent, propose approaches, get direction
+Phase 1  ANALYSIS          Deep codebase analysis (Serena or Glob/Grep)
+Phase 2  CONFESSION        Requirements gathering (minimum 8 questions)
+Phase 3  DRAFT             Write bite-sized implementation plan
+Phase 4  REPLAN            Internal review from 3-8 angles
+Phase 5  FRIENDS           3x Codex + 3x Gemini with targeted questions
+Phase 6  VERIFICATION      Fact-check external claims against code
+Phase 7  PRESENTATION      Final plan with audit trail → approval
 ```
 
-## Bundled skills
+## How Phase 5 works
 
-Each sub-skill can also be invoked independently:
+Claude picks 6 topics from the plan that most deserve outside eyes. Topics are split by model strengths:
 
-| Skill | Phase | Purpose |
-|---|---|---|
-| `gods-plan:gods-plan` | — | Main orchestrator (8 phases) |
-| `gods-plan:brainstorming` | 0 | Explore intent, propose approaches |
-| `gods-plan:writing-plans` | 3 | Write bite-sized implementation plans |
-| `gods-plan:replan` | 4 | Multi-angle parallel plan review |
-| `gods-plan:executing-plans` | post | Execute approved plan with batch checkpoints |
-| `gods-plan:finishing-branch` | post | Merge, PR, keep, or discard after implementation |
+- **Codex** gets backend-focused topics: architecture, data, security, error handling
+- **Gemini** gets frontend-focused topics: UI/UX, user flows, components, accessibility
 
-## Privacy considerations
+Each model gets the full plan for context, plus a specific question: *"Here's the plan. I especially want your take on how I handle the retry logic — how would you approach it? What doesn't sit right?"*
 
-Phase 5 sends your plan and project context to external models (Gemini, Codex) for review. If you work with sensitive code, consider what information you include in `{PROJECT_CONTEXT}`. The plugin does not send raw source code — only the plan text and project conventions summary.
+All 6 run in parallel. If Gemini isn't installed, all topics go to Codex.
 
-If Gemini and Codex plugins are not installed, Phase 5 is skipped entirely and no data leaves Claude.
+## Privacy
+
+Phase 5 sends the plan and a project context summary to external models. No raw source code is sent — only the plan text and project conventions. If Codex/Gemini plugins aren't installed, no data leaves Claude.
 
 ## Contributing
 

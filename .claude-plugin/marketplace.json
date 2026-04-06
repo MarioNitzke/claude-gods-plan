@@ -4,14 +4,14 @@
     "name": "MarioNitzke"
   },
   "metadata": {
-    "description": "God's Plan — 8-phase multi-model ultra-planning with Claude, Gemini, Codex and Serena.",
-    "version": "1.1.0"
+    "description": "God's Plan — 8-phase multi-model ultra-planning with Claude, Codex, Gemini and Serena.",
+    "version": "2.0.0"
   },
   "plugins": [
     {
       "name": "gods-plan",
-      "description": "8-phase ultra-planning orchestrating Claude, Gemini and Codex with Serena deep analysis.",
-      "version": "1.1.0",
+      "description": "8-phase ultra-planning with Claude, Codex, Gemini and Serena. One command, multi-model review.",
+      "version": "2.0.0",
       "author": {
         "name": "MarioNitzke"
       },
